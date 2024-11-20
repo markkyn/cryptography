@@ -50,45 +50,45 @@ impl Key {
 
 pub fn key_expansion( key : Key , nk : u8, nr : u8) {
 
-    let words: [u32; 4] = key.to_vec_of_word();
+    let mut words: [u32; 4] = key.to_vec_of_word();
 
-    let i = 0;
-    for word in words.iter() {
+    for (i, word) in words.iter_mut().enumerate() {
         rot_word(word, 1);
         sub_word(word);
         r_con(word);
         
-        println!("word[{}] = {}", i, word);
+        println!("reverse word[{}] = {:#02x}", i, word);
     }
 
     ()
 }
 
-pub fn rot_word(word: &u32, t: usize ) -> u32 {
+pub fn rot_word(word: &mut u32, t: usize ) { 
+    // TODO: rot_word is rotating backwars, it will do for now =)
+  
     let bytes = word.to_ne_bytes();
 
     let mut temp: [u8; 4] = [0; 4];  
     /*  t = 1 (eg.)
         
-        [1,2,3,4] = bytes
+        [2b,7e,15,16] = bytes
     
-        [4,1,2,3] = temp
+        [16,2b,7e,15] = temp
     */
 
-
     // -->
-    for (i, _) in bytes[t..].iter().enumerate() {
-        temp[i] = bytes[i];
-        println!("{}", bytes[i]);
-    }
+    println!("word {:#02x}", word);
 
-    // <--
-    for (i, _) in bytes[..t+1].iter().enumerate() {
-                              // +1 bc the end of the slice is exclusive
-        temp[i] = bytes[bytes.len() - i - t + 1];
+    for (i, _) in bytes.iter().enumerate().skip(t) {
+        temp[i] = bytes[i-t];
     }
+// <--
+for (i, _) in bytes.iter().enumerate().take(t) {
+    // +1 bc the end of the slice is exclusive
+    temp[i] = bytes[bytes.len() - i - t];
+}
 
-    u32::from_ne_bytes(temp)
+    *word = u32::from_ne_bytes(temp);
 }
 
 fn sub_word(word: &u32) {
