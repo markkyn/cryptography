@@ -62,7 +62,7 @@ fn main() -> io::Result<()> {
 
     let key = Key {
         key: CIPHER_KEY,
-        word_count: 4
+        word_count: 4 
     };
 
     // Key Expansion - Create 12 additional keys ( called round keys ) 
