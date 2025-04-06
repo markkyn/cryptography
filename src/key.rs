@@ -52,54 +52,46 @@ type Byte = u8;
 type Word = u32;
 
 pub fn key_expansion( key : Key , nk : usize, n_rounds : usize) {
-
     
     let mut round_keys : Vec<Key>;
     
     // for round
     for round in 0 .. n_rounds {
+        
         let mut words: [u32; 4] = key.to_vec_of_word();
         
         // Operation over the last word
-        rot_word(&mut words[3], 1);
-        sub_word(&mut words[3]);
-        r_con(&mut words[3]);
+        let last : usize = words.len() - 1;
+
+        rot_word(&mut words[last], 1);
+        sub_word(&mut words[last]);
+        r_con(&mut words[last]);
 
         // XOR operation over all the words\
-        for ( i, word) in words.iter().enumerate().skip(1) {
-            
-            let key = Key {
-                key = ,
-                word_count: 4
-            };
-
-            
-
-
+        // for word in key
+        for ( i, word ) in words.iter().enumerate() {
         }
     
     }
 
-
-    ()
+    () // return nothing
 }
 
 fn rot_word(word: &mut u32, t: usize ) { 
-    // TODO: rot_word is rotating backwars, it will do for now =)
-  
-    let bytes = word.to_ne_bytes();
+    let bytes = word.to_be_bytes();
 
     let mut temp: [u8; 4] = [0; 4];  
     /*  t = 1 (eg.)
         
-        [2b,7e,15,16] = bytes
+        [99, cf, 4f, 3c] = bytes
     
-        [16,2b,7e,15] = temp
+        [3c, 99, cf, 4f] = temp
     */
 
+    
+    println!("Word before rotation {:#02x}", word);
+    
     // -->
-    println!("word {:#02x}", word);
-
     for (i, _) in bytes.iter().enumerate().skip(t) {
         temp[i] = bytes[i-t];
     }
@@ -110,8 +102,9 @@ fn rot_word(word: &mut u32, t: usize ) {
         temp[i] = bytes[bytes.len() - i - t];
     }
 
-    *word = u32::from_ne_bytes(temp);
-    
+    *word = u32::from_be_bytes(temp);
+
+    println!("Word after rotation {:#02x}", word)
 }
 
 fn sub_word(word: &u32) {
