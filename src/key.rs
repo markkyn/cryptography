@@ -1,3 +1,6 @@
+use crate::sbox_parser::Sbox;
+
+
 pub struct Key {
     pub key: u128,
     pub word_count: u8, // count of words
@@ -51,7 +54,7 @@ impl Key {
 type Byte = u8;
 type Word = u32;
 
-pub fn key_expansion( key : Key , nk : usize, n_rounds : usize) {
+pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) {
     
     let mut round_keys : Vec<Key>;
     
@@ -64,7 +67,7 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize) {
         let last : usize = words.len() - 1;
 
         rot_word(&mut words[last], 1);
-        sub_word(&mut words[last]);
+        sub_word(&mut words[last], &sbox);
         r_con(&mut words[last]);
 
         // XOR operation over all the words\
@@ -87,7 +90,6 @@ fn rot_word(word: &mut u32, t: usize ) {
     
         [3c, 99, cf, 4f] = temp
     */
-
     
     println!("Word before rotation {:#02x}", word);
     
@@ -104,11 +106,21 @@ fn rot_word(word: &mut u32, t: usize ) {
 
     *word = u32::from_be_bytes(temp);
 
-    println!("Word after rotation {:#02x}", word)
+    println!("     after rotation {:#02x}", word);
 }
 
-fn sub_word(word: &u32) {
-    ()
+fn sub_word(word: &mut u32, sbox: &Sbox) {
+    let mut temp : [ u8; 4 ] = [0;4];
+
+    println!("Word before substitution {:#02x}", word);
+
+    for(i, byte) in word.to_be_bytes().iter().enumerate() {
+        temp[i] = sbox.get(*byte);
+    }
+
+    *word = u32::from_be_bytes(temp);
+
+    println!("     after substitution {:#02x}", word);
 }
 
 fn r_con(word: &u32) {
