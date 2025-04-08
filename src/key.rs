@@ -114,8 +114,6 @@ fn rot_word(word: &mut Word, t: usize ) {
         [cf, 4f, 3c, 99] = temp
     */
     
-    println!("Word before rotation {:#02x}", word);
-    
     // <--
     for i in 0 .. bytes.len() - t {
         temp[i] = bytes[i + t];
@@ -127,22 +125,16 @@ fn rot_word(word: &mut Word, t: usize ) {
     }
 
     *word = u32::from_be_bytes(temp);
-
-    println!("\tafter rotation {:#02x}", word);
 }
 
 fn sub_word(word: &mut Word, sbox: &Sbox) {
     let mut temp : [ Byte; 4 ] = [0;4];
-
-    println!("Word before substitution {:#02x}", word);
 
     for(i, byte) in word.to_be_bytes().iter().enumerate() {
         temp[i] = sbox.get(*byte);
     }
 
     *word = u32::from_be_bytes(temp);
-
-    println!("     after substitution {:#02x}", word);
 }
 
 fn r_con(word: &mut Word, i_round: usize){
@@ -153,12 +145,9 @@ fn r_con(word: &mut Word, i_round: usize){
 
     let mut bytes = word.to_be_bytes();
 
-    println!("Rcon: {:#02x} -> {:#02x}", bytes[0], RCON[i_round]);
     bytes[0] ^= RCON[i_round];
 
     
     *word = u32::from_be_bytes(bytes);
-
-    println!("\t after rcon: {:#02x}", word);
 
 }
