@@ -16,8 +16,6 @@ impl Sbox {
         
         let i : usize = (most_sig * 16 + least_sig).into();
 
-        println!("\t{:#02x} -> {:#02x}", byte, self.data[i]);
-        
         self.data[i]
     }
 

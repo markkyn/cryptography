@@ -108,7 +108,7 @@ fn main() -> io::Result<()> {
     
     // Key Expansion - Create 12 additional keys ( called round keys ) 
     // to be applied to the AES algorithm every round ( 11 rounds for 128 keys)
-    let _round_keys : Vec<Key>  = key::key_expansion(key, 3, 3, sbox);
+    let _round_keys : Vec<Key>  = key::key_expansion(key, 10, 10, sbox);
 
 
     println!("Ok!");

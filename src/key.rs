@@ -58,12 +58,15 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
     
     let mut round_keys : Vec<Key> = Vec::new();
 
+    let mut new_key = key.clone();
+
+    // first key stays the same
     round_keys.push(key.clone());
 
-    // for round
+    // for each round we generate a new key from the previous one
     for round in 1 .. n_rounds {
         
-        let mut words: [Word; 4] = key.to_vec_of_word();
+        let mut words: [Word; 4] = new_key.to_vec_of_word();
 
         // Operation over the last word
         let last : usize = words.len() - 1;
@@ -75,7 +78,7 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
         // after rcon
         let modified_word : Word = words[last].clone(); 
 
-        words[1] ^= modified_word;
+        words[0] ^= modified_word;
  
         for i in 1..words.len() {
             words[i] ^= words[i-1];
@@ -83,21 +86,24 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
 
         // to convert a a key = 4 words to a single key = u128
         //  we need [u8; 16], but we have [u32; 4]
+        println!("Words: {:#02x} - {:#02x} - {:#02x} - {:#02x}", words[0], words[1], words[2], words[3]);
+        
         let round_key : u128 =
             ((words[0] as u128) << 96 ) |
             ((words[1] as u128) << 64) |
             ((words[2] as u128) << 32) |
             ((words[3] as u128));
 
-        println!("Round key {}: {:#02x}", round, round_key);
+        new_key = Key{
+            key: round_key, // need [u8; 16]
+            word_count: 4
+        };
 
-        round_keys.push(
-            Key{
-                key: round_key, // need [u8; 16]
-                word_count: 4
-            }
-        );
+        round_keys.push(new_key.clone());
+    }
 
+    for (i, key) in round_keys.iter().enumerate() {
+        println!("Round key {}: {:#02x}", i, key.key);
     }
 
     return round_keys; // return nothing
