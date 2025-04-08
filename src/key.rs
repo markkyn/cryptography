@@ -1,8 +1,9 @@
 use crate::sbox_parser::Sbox;
 
+#[derive(Clone)]
 pub struct Key {
     pub key: u128,
-    pub word_count: u8, // count of words
+    pub word_count: u8, // count of words always 4
 }
 
 impl Key {
@@ -53,32 +54,35 @@ impl Key {
 type Byte = u8;
 type Word = u32;
 
-pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) {
+pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> Vec<Key> {
     
-    let mut round_keys : Vec<Key>;
-    
+    let mut round_keys : Vec<Key> = Vec::new();
+
+    round_keys.push(key.clone());
+
     // for round
-    for round in 0 .. n_rounds {
+    for round in 1 .. n_rounds {
         
         let mut words: [Word; 4] = key.to_vec_of_word();
-
 
         // Operation over the last word
         let last : usize = words.len() - 1;
 
         rot_word(&mut words[last], 1);
         sub_word(&mut words[last], &sbox);
-        r_con(&mut words[last], round.try_into().unwrap());
+        //r_con(&mut words[last], round.try_into().unwrap());
 
-        // XOR operation over all the words\
-        // for word in key
-        for ( i, word ) in words.iter().enumerate() {
-
+        for word in words {
         }
-    
+
+        round_keys.push(Key{
+            key: 0xff,
+            word_count: 4
+        });
+
     }
 
-    () // return nothing
+    return round_keys; // return nothing
 }
 
 fn rot_word(word: &mut Word, t: usize ) { 
@@ -89,25 +93,24 @@ fn rot_word(word: &mut Word, t: usize ) {
         
         [99, cf, 4f, 3c] = bytes
     
-        [3c, 99, cf, 4f] = temp
+        [cf, 4f, 3c, 99] = temp
     */
     
     println!("Word before rotation {:#02x}", word);
     
-    // -->
-    for (i, _) in bytes.iter().enumerate().skip(t) {
-        temp[i] = bytes[i-t];
-    }
-    
     // <--
-    for (i, _) in bytes.iter().enumerate().take(t) {
-        // +1 bc the end of the slice is exclusive
-        temp[i] = bytes[bytes.len() - i - t];
+    for i in 0 .. bytes.len() - t {
+        temp[i] = bytes[i + t];
+    }
+
+    // -->
+    for i in 0 .. t {
+        temp[bytes.len()-1] = bytes[i];
     }
 
     *word = u32::from_be_bytes(temp);
 
-    println!("     after rotation {:#02x}", word);
+    println!("\tafter rotation {:#02x}", word);
 }
 
 fn sub_word(word: &mut Word, sbox: &Sbox) {
