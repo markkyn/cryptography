@@ -70,15 +70,33 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
 
         rot_word(&mut words[last], 1);
         sub_word(&mut words[last], &sbox);
-        //r_con(&mut words[last], round.try_into().unwrap());
+        r_con(&mut words[last], round.try_into().unwrap());
 
-        for word in words {
+        // after rcon
+        let modified_word : Word = words[last].clone(); 
+
+        words[1] ^= modified_word;
+ 
+        for i in 1..words.len() {
+            words[i] ^= words[i-1];
         }
 
-        round_keys.push(Key{
-            key: 0xff,
-            word_count: 4
-        });
+        // to convert a a key = 4 words to a single key = u128
+        //  we need [u8; 16], but we have [u32; 4]
+        let round_key : u128 =
+            ((words[0] as u128) << 96 ) |
+            ((words[1] as u128) << 64) |
+            ((words[2] as u128) << 32) |
+            ((words[3] as u128));
+
+        println!("Round key {}: {:#02x}", round, round_key);
+
+        round_keys.push(
+            Key{
+                key: round_key, // need [u8; 16]
+                word_count: 4
+            }
+        );
 
     }
 
