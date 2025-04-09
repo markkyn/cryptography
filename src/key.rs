@@ -67,27 +67,23 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
     for round in 1 .. n_rounds {
         
         let mut words: [Word; 4] = new_key.to_vec_of_word();
-
-        // Operation over the last word
         let last : usize = words.len() - 1;
 
-        rot_word(&mut words[last], 1);
-        sub_word(&mut words[last], &sbox);
-        r_con(&mut words[last], round.try_into().unwrap());
+        // Temp word: this word will be modified by ( Rot_word, sub_word and r_con )
+        let mut modified_word : Word = words[last].clone(); 
+        
+        // Operation over the last word
+        rot_word(&mut modified_word, 1);
+        sub_word(&mut modified_word, &sbox);
+        r_con(&mut modified_word, round.try_into().unwrap());
 
-        // after rcon
-        let modified_word : Word = words[last].clone(); 
-
+        // Xor operation
         words[0] ^= modified_word;
- 
         for i in 1..words.len() {
             words[i] ^= words[i-1];
         }
 
-        // to convert a a key = 4 words to a single key = u128
-        //  we need [u8; 16], but we have [u32; 4]
-        println!("Words: {:#02x} - {:#02x} - {:#02x} - {:#02x}", words[0], words[1], words[2], words[3]);
-        
+        // convert 4 words to a single key = u128
         let round_key : u128 =
             ((words[0] as u128) << 96 ) |
             ((words[1] as u128) << 64) |
@@ -103,8 +99,9 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
     }
 
     for (i, key) in round_keys.iter().enumerate() {
-        println!("Round key {}: {:#02x}", i, key.key);
+        println!("Round {}: {:#02x}", i, key.key);
     }
+
 
     return round_keys; // return nothing
 }
@@ -151,7 +148,7 @@ fn r_con(word: &mut Word, i_round: usize){
 
     let mut bytes = word.to_be_bytes();
 
-    bytes[0] ^= RCON[i_round];
+    bytes[0] ^= RCON[i_round - 1];
 
     
     *word = u32::from_be_bytes(bytes);
