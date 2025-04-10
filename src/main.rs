@@ -3,9 +3,11 @@ use std::io::prelude::*;
 use std::fs::File;
 use crate::key::Key;
 use crate::sbox_parser::Sbox;
+use crate::cipher::cipher;
 
 mod key;
 mod sbox_parser;
+mod cipher;
 
 const CIPHER_KEY : u128 = 0x2b_7e_15_16_28_ae_d2_a6_ab_f7_15_88_99_cf_4f_3c; // 128 bits = 16 bytes
 const KEY_LENGTH : u8 = 4;  // Nr = 128 bits / 4 = word of 32 bits
@@ -71,6 +73,19 @@ impl Block {
 type State = Block;
 
 fn main() -> io::Result<()> {
+    
+    let sbox = Sbox::new(SBOX_BYTES); 
+    
+    // Key Expansion - Create 12 additional keys ( called round keys ) 
+    // to be applied to the AES algorithm every round ( 11 rounds for 128 keys)
+    let key = Key {
+        key: CIPHER_KEY,
+        word_count: 4 
+    };
+
+    let _round_keys : Vec<Key>  = key::key_expansion(key, 11, 11, sbox);
+
+    // input
     let mut f = File::open("io/plain/lorem.txt")?;
 
     let mut buffer = Vec::new();
@@ -78,6 +93,7 @@ fn main() -> io::Result<()> {
     f.read_to_end(&mut buffer)?; // &mut => Mutable Borrowing 
 
     let mut all_blocks : Vec<Block> = Vec::new();
+    let mut output_blocks: Vec<Block> = Vec::new();
 
     let mut block : Block;
 
@@ -96,19 +112,7 @@ fn main() -> io::Result<()> {
             cols: 4
         };
 
-        all_blocks.push(block);
     }
-
-    let key = Key {
-        key: CIPHER_KEY,
-        word_count: 4 
-    };
-
-    let sbox = Sbox::new(SBOX_BYTES); 
-    
-    // Key Expansion - Create 12 additional keys ( called round keys ) 
-    // to be applied to the AES algorithm every round ( 11 rounds for 128 keys)
-    let _round_keys : Vec<Key>  = key::key_expansion(key, 11, 11, sbox);
 
 
     println!("Ok!");
