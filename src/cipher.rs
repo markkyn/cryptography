@@ -38,7 +38,11 @@ fn add_round_key(input : &Block, key : Key) -> Block {
     */
 
     for i in 0..128 {
-        data[i] = input.data[i] ^ key.key[i];
+        // Key Size: [u8; 16] = 128 bits of key
+        // Block Size: [u8; 16] = 128 bits of data
+
+        // 1:1 Xor
+        data[i] = input.data[i] ^ key.key.to_be_bytes[i];
     }
 
     let output : Block = Block {
