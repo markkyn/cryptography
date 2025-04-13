@@ -65,6 +65,15 @@ impl Block {
 
         return &self.data[i];
     }
+
+    fn get_i(&self, i : usize) -> &u8 {
+        if(i >= self.rows * self.cols) {
+            return &0;
+        }
+
+        return &self.data[i];
+    }
+
 }
 
 // States are considered Blocks that are being changed over the AES.
