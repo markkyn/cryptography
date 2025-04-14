@@ -48,7 +48,7 @@ const SBOX_BYTES : [u8; 256] = [
     0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
 ];
 
-
+#[derive(Clone)]
 struct Block {
     data: Vec<u8>,
     rows: u8,
@@ -67,7 +67,7 @@ impl Block {
     }
 
     fn get_i(&self, i : usize) -> &u8 {
-        if(i >= self.rows * self.cols) {
+        if i >= (self.rows * self.cols).into() {
             return &0;
         }
 
