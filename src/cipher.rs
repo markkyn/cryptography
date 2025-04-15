@@ -3,7 +3,7 @@ use crate::Key;
 
 pub fn cipher(input : &Block, mut roundKeys: Vec<Key>) -> Block {
 
-    let mut state : &Block = &input.clone();
+    let mut state : Block = input.clone();
 
     // pre-round
     state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
@@ -28,13 +28,11 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>) -> Block {
     return state.clone();
 }
 
-fn add_round_key(input : &Block, key : Key) -> Block {
+fn add_round_key( input : &Block, key : Key ) -> Block {
     let mut data : [u8; 16] = [0; 16];
 
     /*
         Input/State is the entry with 128 bytes (BlockSize),
-
-
     */
 
     for i in 0..128 {
@@ -50,5 +48,5 @@ fn add_round_key(input : &Block, key : Key) -> Block {
         data: data.to_vec(),
         rows: 4,
         cols: 4
-    };
+    }
 }
