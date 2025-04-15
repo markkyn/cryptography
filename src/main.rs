@@ -71,7 +71,17 @@ impl Block {
             return &0;
         }
 
-        return &self.data[i];
+        &self.data[i]
+    }
+
+    fn data_as_u128(&self) -> u128{
+        let mut integer : u128 = 0;
+        
+        for i in 0..16 {
+            integer |= (self.data[15-i] as u128) << (8 * i);
+        }
+
+        integer
     }
 
 }
@@ -92,7 +102,7 @@ fn main() -> io::Result<()> {
         word_count: 4 
     };
 
-    let _round_keys : Vec<Key>  = key::key_expansion(key, 11, 11, sbox);
+    let round_keys : Vec<Key>  = key::key_expansion(key, 11, 11, sbox);
 
     // input
     let mut f = File::open("io/plain/lorem.txt")?;
@@ -105,7 +115,6 @@ fn main() -> io::Result<()> {
     let mut output_blocks: Vec<Block> = Vec::new();
 
     let mut block : Block;
-
     // Creating blocks of bytes
     // AES input: 128 bits = 16 bytes
     for i in 0 .. buffer.len() / 16 {
@@ -120,9 +129,10 @@ fn main() -> io::Result<()> {
             rows: 4,
             cols: 4
         };
-
+        println!("Cipher Block {}: {:#02x}", i, block.data_as_u128());
+        
+        output_blocks.push(cipher(&block, round_keys.clone()));
     }
-
 
     println!("Ok!");
     

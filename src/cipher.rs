@@ -6,6 +6,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>) -> Block {
     let mut state : Block = input.clone();
 
     // pre-round
+    println!("Input Block: {}", input.data_as_u128());
     state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
 
     // for round
