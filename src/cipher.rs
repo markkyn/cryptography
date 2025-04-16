@@ -1,7 +1,8 @@
 use crate::Block;
 use crate::Key;
+use crate::Sbox;
 
-pub fn cipher(input : &Block, mut roundKeys: Vec<Key>) -> Block {
+pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
     let mut state : Block = input.clone();
 
@@ -15,7 +16,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>) -> Block {
         let key = roundKeys.pop()
                 .expect("Couldnt pop round key");
 
-        //state = sub_bytes(state);
+        state = sub_bytes(&state, sbox);
         //state = shift_rows(state);
         //state = mix_columns(state);
         state = add_round_key(&state, key);
@@ -26,10 +27,10 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>) -> Block {
     //state = shift_rows(state);
     state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
 
-    return state.clone();
+    state.clone();
 }
 
-fn add_round_key( input : &Block, key : Key ) -> Block {
+fn add_round_key(input : &Block, key : Key) -> Block {
     let mut data : [u8; 16] = [0; 16];
 
     /*
@@ -50,4 +51,14 @@ fn add_round_key( input : &Block, key : Key ) -> Block {
         rows: 4,
         cols: 4
     }
+}
+
+fn sub_bytes(input: &Block, sbox : Sbox) -> Block{
+    let mut state : Block = input.clone();
+
+    for (i, byte) in input.data.into_iter().enumerate() {
+        state.data[i] = sbox.get(byte);
+    }
+
+    state.clone()
 }

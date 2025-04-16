@@ -21,6 +21,14 @@ impl Key {
         ( )
     }
 
+    fn get_byte(&self, i : usize) -> u8{
+        if i  >= 16 {
+            ()
+        }
+
+        return self.key.to_be_bytes()[i];
+    }
+
     pub fn to_vec_of_word(&self) -> [u32; 4] {
     
         let bytes = self.key.to_be_bytes();
@@ -40,7 +48,7 @@ impl Key {
         return result;
     }
 
-    fn word_len(&self) -> u8 {
+    fn word_len(&self) -> usize {
         // len of each word
         // eg. 128 bits / 4 = 32 bits;
 

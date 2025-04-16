@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Sbox {
     data: Vec<u8>
 }

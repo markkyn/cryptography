@@ -102,7 +102,7 @@ fn main() -> io::Result<()> {
         word_count: 4 
     };
 
-    let round_keys : Vec<Key>  = key::key_expansion(key, 11, 11, sbox);
+    let round_keys : Vec<Key>  = key::key_expansion(key, 11, 11, sbox.clone());
 
     // input
     let mut f = File::open("io/plain/lorem.txt")?;
@@ -131,7 +131,7 @@ fn main() -> io::Result<()> {
         };
         println!("Cipher Block {}: {:#02x}", i, block.data_as_u128());
         
-        output_blocks.push(cipher(&block, round_keys.clone()));
+        output_blocks.push(cipher(&block, round_keys.clone(), sbox.clone()));
     }
 
     println!("Ok!");
