@@ -7,8 +7,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
     let mut state : Block = input.clone();
 
     // pre-round
-    println!("Input Block: {}", input.data_as_u128());
-    state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
+    //state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
 
     // for round
     for r in 1..9 {
@@ -16,18 +15,18 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
         let key = roundKeys.pop()
                 .expect("Couldnt pop round key");
 
-        state = sub_bytes(&state, sbox);
+        state = sub_bytes(&state, sbox.clone());
         //state = shift_rows(state);
         //state = mix_columns(state);
-        state = add_round_key(&state, key);
+        //state = add_round_key(&state, key);
     }
 
     // last round - 11
     //state = sub_bytes(state);
     //state = shift_rows(state);
-    state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
+    //state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
 
-    state.clone();
+    state.clone()
 }
 
 fn add_round_key(input : &Block, key : Key) -> Block {
@@ -42,7 +41,7 @@ fn add_round_key(input : &Block, key : Key) -> Block {
         // Block Size: [u8; 16] = 128 bits of data
 
         // 1:1 Xor
-        data[i] = input.data[i] ^ key.key.to_be_bytes()[i];
+        //data[i] = input.data[i] ^ key.key.to_be_bytes()[i];
     }
 
     // returns the State Block = Input XOR Key
@@ -54,11 +53,15 @@ fn add_round_key(input : &Block, key : Key) -> Block {
 }
 
 fn sub_bytes(input: &Block, sbox : Sbox) -> Block{
+    println!("Input Block: {:#02x}", input.data_as_u128());
+
     let mut state : Block = input.clone();
 
-    for (i, byte) in input.data.into_iter().enumerate() {
+    for (i, byte) in input.data.clone().into_iter().enumerate() {
         state.data[i] = sbox.get(byte);
     }
+    
+    println!("Substitution Block: {:#02x}", state.data_as_u128());
 
     state.clone()
 }
