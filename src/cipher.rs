@@ -65,3 +65,13 @@ fn sub_bytes(input: &Block, sbox : Sbox) -> Block{
 
     state.clone()
 }
+
+fn shift_rows(input: &Block) -> Block{
+    let mut state : Block = input.clone();
+    
+    for i in 0..=4 {
+                
+    }
+    
+    state.clone()
+}
