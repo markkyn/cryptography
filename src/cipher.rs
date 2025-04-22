@@ -69,8 +69,14 @@ fn sub_bytes(input: &Block, sbox : Sbox) -> Block{
 fn shift_rows(input: &Block) -> Block{
     let mut state : Block = input.clone();
     
-    for i in 0..=4 {
-                
+    let mut rows : Vec<Vec<u8>> = state.get_rows();
+    
+    for r in 0..state.rows {
+        rows[r][0] = rows[r][state.cols];
+
+        for c in 1..state.cols {
+            rows[r][c] = rows[r][c + 1];
+        }
     }
     
     state.clone()

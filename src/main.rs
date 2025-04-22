@@ -74,6 +74,26 @@ impl Block {
         &self.data[i]
     }
 
+    fn get_rows(&self) -> Vec<Vec<u8>> {
+
+        let mut rows = vec![vec![0u8;self.rows as usize]];
+
+        for r in 0..self.rows {
+            for i in 0..self.cols {
+                rows[r as usize][i as usize] = self.data[(i + r * self.rows) as usize];
+            }
+        }
+
+        rows
+    }
+
+    fn from_rows(&self, rows : Vec<Vec<u8>>) -> () {
+        
+        
+        
+        Ok(())
+    }
+
     fn data_as_u128(&self) -> u128{
         let mut integer : u128 = 0;
         
