@@ -22,8 +22,8 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
     }
 
     // last round - 11
-    //state = sub_bytes(state);
-    //state = shift_rows(state);
+    state = sub_bytes(state);
+    state = shift_rows(state);
     //state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
 
     state.clone()
