@@ -72,10 +72,10 @@ fn shift_rows(input: &Block) -> Block{
     let mut rows : Vec<Vec<u8>> = state.get_rows();
     
     for r in 0..state.rows {
-        rows[r][0] = rows[r][state.cols];
+        rows[r as usize][0] = rows[r as usize][state.cols as usize];
 
         for c in 1..state.cols {
-            rows[r][c] = rows[r][c + 1];
+            rows[r as usize][c as usize] = rows[r as usize][(c + 1) as usize];
         }
     }
     
