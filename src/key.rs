@@ -21,12 +21,12 @@ impl Key {
         ( )
     }
 
-    fn get_byte(&self, i : usize) -> u8{
+    fn get_byte(&self, i : usize) -> Result<u8, String>{
         if i  >= 16 {
-            ()
+            return Err(format!("[Key.get_byte({})] index out of bound: ", i));
         }
 
-        return self.key.to_be_bytes()[i];
+        Ok(self.key.to_be_bytes()[i])
     }
 
     pub fn to_vec_of_word(&self) -> [u32; 4] {
