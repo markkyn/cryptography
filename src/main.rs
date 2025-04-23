@@ -87,14 +87,20 @@ impl Block {
         rows
     }
 
-    fn from_rows(&self, rows : Vec<Vec<u8>>) -> () {
-        
-        
+    fn from_rows(&mut self, rows : Vec<Vec<u8>>) -> Result<(), Vec<u8>> {
+        let mut i : usize = 0;
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                self.data[i] = rows[r as usize][c as usize];
+
+                i += 1;
+            }
+        }
         
         Ok(())
     }
 
-    fn data_as_u128(&self) -> u128{
+    fn data_as_u128(&self) -> u128 {
         let mut integer : u128 = 0;
         
         for i in 0..16 {
