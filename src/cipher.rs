@@ -16,7 +16,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
                 .expect("Couldnt pop round key");
 
         state = sub_bytes(&state, sbox.clone());
-        //state = shift_rows(state);
+        state = shift_rows(&state);
         //state = mix_columns(state);
         //state = add_round_key(&state, key);
     }
@@ -71,11 +71,12 @@ fn shift_rows(input: &Block) -> Block{
     
     let mut rows : Vec<Vec<u8>> = state.get_rows();
     
+    println!("\tRows: {} | Cols: {}", state.rows, state.cols);
     for r in 0..state.rows {
-        rows[r as usize][0] = rows[r as usize][state.cols as usize];
+        rows[r as usize][(state.cols - 1) as usize] = rows[r as usize][0];
 
-        for c in 1..state.cols {
-            rows[r as usize][c as usize] = rows[r as usize][(c + 1) as usize];
+        for c in 0..(state.cols-1) {
+            rows[r as usize][c as usize] = rows[r as usize][c as usize];
         }
     }
     

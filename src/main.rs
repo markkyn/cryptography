@@ -76,11 +76,11 @@ impl Block {
 
     fn get_rows(&self) -> Vec<Vec<u8>> {
 
-        let mut rows = vec![vec![0u8;self.rows as usize]];
+        let mut rows = vec![vec![0u8; self.rows as usize]; self.cols as usize];
 
         for r in 0..self.rows {
-            for i in 0..self.cols {
-                rows[r as usize][i as usize] = self.data[(i + r * self.rows) as usize];
+            for c in 0..self.cols {
+                rows[r as usize][c as usize] = self.data[(c + r * self.rows) as usize];
             }
         }
 
