@@ -48,15 +48,15 @@ const SBOX_BYTES : [u8; 256] = [
     0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
 ];
 
-const MIX_COLUMNS_MT = {
+static MIX_COLUMNS_MT : [u8; 16] = [
     0x2, 0x3, 0x1, 0x1,
     0x1, 0x2, 0x3, 0x1,
     0x1, 0x1, 0x2, 0x3,
     0x3, 0x1, 0x1, 0x2
-}
+];
 
-const MIX_COLUMNS_ROWS = 4;
-const MIX_COLUMNS_COLS = 4;
+const MIX_COLUMNS_ROWS : usize = 4;
+const MIX_COLUMNS_COLS : usize = 4;
 
 
 #[derive(Clone)]
@@ -99,16 +99,15 @@ impl Block {
     }
 
     fn get_cols(&self) -> Vec<Vec<u8>> {
-        let mut cols = vec![vec![0u8;self.cols as usize];self.rows as usize]
+        let mut cols = vec![vec![0u8;self.cols as usize];self.rows as usize];
     
-        for r in 0..self.rows {
-            for c in 0..self.cols {
-
+        for c in 0..self.cols {
+            for r in 0..self.rows {
+                cols[c as usize][r as usize] = self.data[(r + c * self.rows) as usize];
             }
         }
 
         cols 
-    
     }
 
     fn from_rows(&mut self, rows : Vec<Vec<u8>>) -> Result<(), Vec<u8>> {
