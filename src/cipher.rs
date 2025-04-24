@@ -1,6 +1,7 @@
 use crate::Block;
 use crate::Key;
 use crate::Sbox;
+use crate::MIX_COLUMNS_MT;
 
 pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
@@ -17,14 +18,15 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
         state = sub_bytes(&state, sbox.clone());
         state = shift_rows(&state);
-        //state = mix_columns(state);
+
+        state = mix_columns(&state, MIX_COLUMNS_MT);
         //state = add_round_key(&state, key);
     }
 
     // last round - 11
-    state = sub_bytes(state);
-    state = shift_rows(state);
-    state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
+    state = sub_bytes(&state, sbox.clone());
+    state = shift_rows(&state);
+    state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
 
     state.clone()
 }
@@ -50,10 +52,11 @@ fn add_round_key(input : &Block, key : Key) -> Block {
         rows: 4,
         cols: 4
     }
+    println!("\tAdded RoundKey: {:#02x}", input.data_as_u128());
+    
 }
 
-fn sub_bytes(input: &Block, sbox : Sbox) -> Block{
-    println!("Input Block: {:#02x}", input.data_as_u128());
+fn sub_bytes(input: &Block, sbox : Sbox) -> Block {
 
     let mut state : Block = input.clone();
 
@@ -61,17 +64,16 @@ fn sub_bytes(input: &Block, sbox : Sbox) -> Block{
         state.data[i] = sbox.get(byte);
     }
     
-    println!("Substitution Block: {:#02x}", state.data_as_u128());
+    println!("\tSubstitution Block: {:#02x}", state.data_as_u128());
 
     state.clone()
 }
 
-fn shift_rows(input: &Block) -> Block{
+fn shift_rows(input: &Block) -> Block {
     let mut state : Block = input.clone();
     
     let mut rows : Vec<Vec<u8>> = state.get_rows();
     
-    println!("\tRows: {} | Cols: {}", state.rows, state.cols);
     for r in 0..state.rows {
         rows[r as usize][(state.cols - 1) as usize] = rows[r as usize][0];
 
@@ -80,18 +82,21 @@ fn shift_rows(input: &Block) -> Block{
         }
     }
     
+    println!("\tShifted Block: {:#02x}", )
     state.clone()
 }
 
-fn mix_columns(input: &Block, matrix : [u8; 16] ) {
+fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
     
     let mut state = input.clone();
 
-    let mut result_col : [u8; self.state.rows] = [0; 16];
+    let state_cols = state.get_cols();
+
+    let mut result_col = [0; 16];
     for c in 0..state.cols {
-        for r in 0..state.rows {
-            
-        }
+        let bytes_slice = &state_cols[c as usize][0..state.rows as usize];
+
+        println!("\t{:?}", bytes_slice);
     }
 
     state
