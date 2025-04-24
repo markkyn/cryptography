@@ -24,7 +24,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
     // last round - 11
     state = sub_bytes(state);
     state = shift_rows(state);
-    //state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
+    state = add_round_key(input, roundKeys.pop().expect("Couldnt pop round key"));
 
     state.clone()
 }
@@ -81,4 +81,18 @@ fn shift_rows(input: &Block) -> Block{
     }
     
     state.clone()
+}
+
+fn mix_columns(input: &Block, matrix : [u8; 16] ) {
+    
+    let mut state = input.clone();
+
+    let mut result_col : [u8; self.state.rows] = [0; 16];
+    for c in 0..state.cols {
+        for r in 0..state.rows {
+            
+        }
+    }
+
+    state
 }
