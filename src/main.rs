@@ -8,6 +8,7 @@ use crate::cipher::cipher;
 mod key;
 mod sbox_parser;
 mod cipher;
+mod algebra;
 
 const CIPHER_KEY : u128 = 0x2b_7e_15_16_28_ae_d2_a6_ab_f7_15_88_99_cf_4f_3c; // 128 bits = 16 bytes
 const KEY_LENGTH : u8 = 4;  // Nr = 128 bits / 4 = word of 32 bits
