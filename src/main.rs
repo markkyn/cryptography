@@ -179,7 +179,7 @@ fn main() -> io::Result<()> {
             rows: 4,
             cols: 4
         };
-        println!("Cipher Block {}: {:#02x}", i, block.data_as_u128());
+        println!("\nCipher Block {}: {:#02x}", i, block.data_as_u128());
         
         output_blocks.push(cipher(&block, round_keys.clone(), sbox.clone()));
     }
