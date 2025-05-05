@@ -3,16 +3,21 @@ use crate::Key;
 use crate::Sbox;
 use crate::MIX_COLUMNS_MT;
 use crate::algebra::get_polinomial;
+use crate::algebra::pol_mult_mod2;
 
 pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
     let mut state : Block = input.clone();
+    
+    println!("\n\tRound: 0\n");
 
     // pre-round
     state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
 
     // for round
     for r in 1..9 {
+
+        println!("\n\tRound: {}\n", _r);
 
         let key = roundKeys.pop()
                 .expect("Couldnt pop round key");
@@ -21,7 +26,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
         state = shift_rows(&state);
 
         state = mix_columns(&state, MIX_COLUMNS_MT);
-        //state = add_round_key(&state, key);
+        state = add_round_key(&state, key);
     }
 
     // last round - 11
@@ -48,14 +53,17 @@ fn add_round_key(input : &Block, key : Key) -> Block {
     }
 
     // returns the State Block = Input XOR Key
-    println!("\tAdded RoundKey: {:#02x}", input.data_as_u128());
+
     
-    Block {
+    let output = Block {
         data: data.to_vec(),
         rows: 4,
         cols: 4
-    }
+    };
+
+    println!("\tAdded RoundKey: {:#02x}", output.data_as_u128());
     
+    output.clone()
 }
 
 fn sub_bytes(input: &Block, sbox : Sbox) -> Block {
@@ -84,7 +92,7 @@ fn shift_rows(input: &Block) -> Block {
         }
     }
     
-    println!("\tShifted Block: {:#02x}", )
+    println!("\tShifted Block: {:#02x}", state.data_as_u128());
     state.clone()
 }
 
@@ -98,30 +106,14 @@ fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
     for c  in 0..state.cols as usize {
         for r in 0..state.rows as usize {
 
-            let expoent_pol = get_polinomial(matrix[8 * c + r]); // from const matrix
+            let expoent_pol = get_polinomial(matrix[3 * c + r]); // from const matrix
             let value_pol = get_polinomial(state_cols[c][r]);
 
-            let added_expoents : Vec<usize> = vec![0 as usize; 0];
-            // Applying Polinomial Functions
-            for i in 0..state_cols[c].len() as u8 {
-                let result = (value_pol[i] + expoent_pol[i]) as usize;
-                
-                /* 
-                // TODO: Still didn`t get this part...
-                if result % 2 == 0 { // Even result are not used
-                continue;
-                }
-                */
+            // Polinomial multiplication mod 2
+            let added_expoents : Vec<usize> = pol_mult_mod2(value_pol, expoent_pol);
 
-                added_expoents.push(result);
-
-            }
             // m(x) = 0b100011011 (fixed expression)
-            const MX : u16 = 0b100011011; 
-
-                
-
-
+            const _MX : u16 = 0b100011011; 
 
             // TODO: push to vector with the result
         }
