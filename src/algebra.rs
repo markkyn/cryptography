@@ -7,7 +7,7 @@ pub fn get_polinomial(x: u8) -> Vec<usize> {
     */
     
     
-    let mut indexes = vec![0 as usize;8];
+    let mut indexes = vec![];
 
     for i in 0..8 {
         if ( x >> i ) & 0x01 == 0x01 {
@@ -35,25 +35,26 @@ pub fn from_polinomial(pol_vec : Vec<usize>) -> u16 {
     result
 }
 
-pub fn pol_mult_mod2(x: Vec<usize>, y: Vec<usize>) -> u16 {
+pub fn pol_mult_mod2(x: Vec<usize>, y: Vec<usize>) -> Vec<usize> {
     
     // Adding the polinomials
-    let mut grid : Vec<Vec<u8>> = vec![vec![0; x.len()]; y.len()];
+    let mut grid : Vec<Vec<u8>> = vec![vec![0; y.len()]; x.len()];
     for i in 0..x.len() as usize{
         for j in 0..y.len() as usize{
-            grid[i][j] = x[i] + y[j];
+            grid[i][j] = u8::try_from(x[i] + y[j]).expect("Overflow");
         }
     }
 
     // Filtering the grid value to calculate the mod 2 
-    let mut polinomial : Vec<usize>;
+    let mut polinomial : Vec<usize> = vec![];
     
     { // while scope 
-        let flatted_grid = grid.into_iter().flatten().collect();
+        let flatted_grid : Vec<u8> = grid.into_iter().flatten().collect();
         
+        println!("{}", flatted_grid.len());
         let mut i = 0;
         while i < flatted_grid.len(){
-            let mut count = 0;
+            let mut count = 1;
             for j in i+1..flatted_grid.len() {
                 
                 if flatted_grid[j] != flatted_grid[i] {
@@ -65,12 +66,14 @@ pub fn pol_mult_mod2(x: Vec<usize>, y: Vec<usize>) -> u16 {
             
             // if happens once we push to the output, bc we are at mod 2
             if count % 2 != 0 { 
-                polinomial.push(flatted_grid[i]);
+                polinomial.push(flatted_grid[i].into());
             }
             
             i += count;
         }
     }
+
+    polinomial
 }
 
 pub fn pol_u9_to_u8(polinomial_value : u16, original_value : u8) -> u8 {
