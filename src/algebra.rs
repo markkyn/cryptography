@@ -29,7 +29,7 @@ pub fn from_polinomial(pol_vec : Vec<usize>) -> u16 {
     let mut result : u16 = 0;
 
     for (i, pol) in pol_vec.into_iter().enumerate() {
-        result = (pol << i) as u16 
+        result |= (0b1 << pol) as u16 
     }
 
     result
@@ -76,14 +76,12 @@ pub fn pol_mult_mod2(x: Vec<usize>, y: Vec<usize>) -> Vec<usize> {
     polinomial
 }
 
-pub fn pol_u9_to_u8(polinomial_value : u16, original_value : u8) -> u8 {
+pub fn pol_u9_to_u8(polinomial_value : u16) -> u8 {
     /* 
         polinomial should be an u9, but as rust do not have a syntax for that,
         and we do  not want to over complicate the project by creating a new type
         we just use the imediate greater size type of u8;
     */
 
-    let mask : u16 = 0x100;
-
-    (polinomial_value ^ ((original_value as u16) | mask)) as u8
+    (polinomial_value ^ 0x11b) as u8
 }
