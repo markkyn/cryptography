@@ -3,7 +3,9 @@ use crate::Key;
 use crate::Sbox;
 use crate::MIX_COLUMNS_MT;
 use crate::algebra::get_polinomial;
+use crate::algebra::from_polinomial;
 use crate::algebra::pol_mult_mod2;
+use crate::algebra::pol_u9_to_u8;
 
 pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
@@ -17,7 +19,7 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
     // for round
     for r in 1..9 {
 
-        println!("\n\tRound: {}\n", _r);
+        println!("\n\tRound: {}\n", r);
 
         let key = roundKeys.pop()
                 .expect("Couldnt pop round key");
@@ -98,25 +100,47 @@ fn shift_rows(input: &Block) -> Block {
 
 fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
     
-    let mut state = input.clone();
+    let state = input.clone();
 
-    let state_cols = state.get_cols();
+    let mut state_cols : Vec<Vec<u8>> = state.get_cols();
 
-    let mut result_col = [0 as u32; 16];
-    for c  in 0..state.cols as usize {
-        for r in 0..state.rows as usize {
+    for c  in 0..state.cols as usize { // For each col in expoent matrix 
 
-            let expoent_pol = get_polinomial(matrix[3 * c + r]); // from const matrix
-            let value_pol = get_polinomial(state_cols[c][r]);
+        println!("col = {}", c);
+        print!("\n");
+        
+        for r in 0..state.rows as usize { // Calculate each polinomial ( )
+            
+            let mut result_byte : u8 = 0; // x¹ + x² + x³ =  element of polinomials;
+            
+            print!("r{} -> ", r);
+            
+            for e in 0..state.rows as usize { // for each element
+                let expoent_pol = get_polinomial(matrix[4 * r + e]); // from const matrix
+                let value_pol = get_polinomial(state_cols[e][c]);
 
-            // Polinomial multiplication mod 2
-            let added_expoents : Vec<usize> = pol_mult_mod2(value_pol, expoent_pol);
 
-            // m(x) = 0b100011011 (fixed expression)
-            const _MX : u16 = 0b100011011; 
-
-            // TODO: push to vector with the result
+                print!("( {} * {:#02x} ) + ", matrix[4 * r + e], state_cols[e][c]);
+                
+                // Polinomial multiplication mod 2
+                let added_expoents : Vec<usize> = pol_mult_mod2(value_pol, expoent_pol);
+                
+                let integer_polinomial : u16 = from_polinomial(added_expoents);
+                
+                let mut byte_polinomial : u8 = 0x00;
+                if integer_polinomial > 0xFF {
+                    byte_polinomial = pol_u9_to_u8(integer_polinomial);
+                } else {
+                    byte_polinomial = integer_polinomial as u8;
+                }
+                
+                // XORing => in x¹ + x² + x³, we apply XOR for every polinomial sum in GF(2^8) 
+                result_byte ^= byte_polinomial;
+            }
+            println!("= {:#02x}", result_byte);
+            //state_cols[c][r] = result_byte;
         }
+        print!("\n\n");
     }
 
     state

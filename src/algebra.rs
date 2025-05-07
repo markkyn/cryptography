@@ -51,7 +51,6 @@ pub fn pol_mult_mod2(x: Vec<usize>, y: Vec<usize>) -> Vec<usize> {
     { // while scope 
         let flatted_grid : Vec<u8> = grid.into_iter().flatten().collect();
         
-        println!("{}", flatted_grid.len());
         let mut i = 0;
         while i < flatted_grid.len(){
             let mut count = 1;
