@@ -22,8 +22,9 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
         println!("\n\tRound: {}\n", r);
 
         let key = roundKeys.pop()
-                .expect("Couldnt pop round key");
-
+        .expect("Couldnt pop round key");
+    
+        println!("\tInput Block: {:#02x}", state.data_as_u128() );
         state = sub_bytes(&state, sbox.clone());
         state = shift_rows(&state);
 
@@ -94,8 +95,15 @@ fn shift_rows(input: &Block) -> Block {
         }
     }
     
-    println!("\tShifted Block: {:#02x}", state.data_as_u128());
-    state.clone()
+    
+    let output = Block{
+        data:  rows.into_iter().flatten().collect(),
+        rows: state.rows,
+        cols: state.cols
+    };
+
+    println!("\tShifted Block: {:#02x}", output.data_as_u128());
+    output.clone()
 }
 
 fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
@@ -103,25 +111,17 @@ fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
     let state = input.clone();
 
     let mut state_cols : Vec<Vec<u8>> = state.get_cols();
+    let data : u128 = 0x00;
 
+    let mut output = state.clone();
     for c  in 0..state.cols as usize { // For each col in expoent matrix 
-
-        println!("col = {}", c);
-        print!("\n");
-        
         for r in 0..state.rows as usize { // Calculate each polinomial ( )
             
             let mut result_byte : u8 = 0; // x¹ + x² + x³ =  element of polinomials;
-            
-            print!("r{} -> ", r);
-            
             for e in 0..state.rows as usize { // for each element
                 let expoent_pol = get_polinomial(matrix[4 * r + e]); // from const matrix
                 let value_pol = get_polinomial(state_cols[e][c]);
 
-
-                print!("( {} * {:#02x} ) + ", matrix[4 * r + e], state_cols[e][c]);
-                
                 // Polinomial multiplication mod 2
                 let added_expoents : Vec<usize> = pol_mult_mod2(value_pol, expoent_pol);
                 
@@ -137,11 +137,12 @@ fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
                 // XORing => in x¹ + x² + x³, we apply XOR for every polinomial sum in GF(2^8) 
                 result_byte ^= byte_polinomial;
             }
-            println!("= {:#02x}", result_byte);
-            //state_cols[c][r] = result_byte;
+
+            output.data[4 *c + r] = result_byte;
         }
-        print!("\n\n");
     }
+
+    println!("\tMixed Columns: {:#02x}", output.data_as_u128());
 
     state
 }
