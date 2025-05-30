@@ -11,25 +11,21 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
     let mut state : Block = input.clone();
     
-    println!("\n\tRound: 0\n");
 
     // pre-round
-    state = add_round_key(&input, roundKeys.pop().expect("Couldnt pop round key"));
+    state = add_round_key(&input, roundKeys[0].clone());
 
     // for round
     for r in 1..9 {
 
-        println!("\n\tRound: {}\n", r);
+        println!("\n\tRound {}:\n", r);
 
-        let key = roundKeys.pop()
-        .expect("Couldnt pop round key");
-    
         println!("\tInput Block: {:#02x}", state.data_as_u128() );
         state = sub_bytes(&state, sbox.clone());
         state = shift_rows(&state);
 
         state = mix_columns(&state, MIX_COLUMNS_MT);
-        state = add_round_key(&state, key);
+        state = add_round_key(&state, roundKeys[r].clone());
     }
 
     // last round - 11
@@ -47,14 +43,15 @@ fn add_round_key(input : &Block, key : Key) -> Block {
         Input/State is the entry with 128 bytes (BlockSize),
     */
 
-    for i in 0..16 { // TODO: Verify end of loop
+    for i in 0..16 {
         // Key Size: [u8; 16] = 128 bits of key
         // Block Size: [u8; 16] = 128 bits of data
 
         // 1:1 Xor
-        data[i] = input.data[i] ^ key.key.to_be_bytes()[i];
+        data[i] = input.data[i] ^ key.get_byte(i).unwrap();
     }
 
+    print!("\n");
     // returns the State Block = Input XOR Key
 
     

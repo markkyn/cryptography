@@ -21,10 +21,11 @@ impl Key {
         ( )
     }
 
-    fn get_byte(&self, i : usize) -> Result<u8, String>{
+    pub fn get_byte(&self, i : usize) -> Result<u8, String>{
         if i  >= 16 {
             return Err(format!("[Key.get_byte({})] index out of bound: ", i));
         }
+
 
         Ok(self.key.to_be_bytes()[i])
     }
@@ -107,7 +108,7 @@ pub fn key_expansion( key : Key , nk : usize, n_rounds : usize, sbox : Sbox) -> 
     }
 
     for (i, key) in round_keys.iter().enumerate() {
-        println!("Round {}: {:#02x}", i, key.key);
+        println!("Round Key {}: {:#02x}", i, key.key);
     }
 
 
