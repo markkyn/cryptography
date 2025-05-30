@@ -39,7 +39,7 @@ Used as substitution matrix
 
 
 ### MixColumns Matrix
-This Matrix is does not need to be set on CrypTool, because its a fixed-matrix that is applyied on mix columns along the process
+This Matrix does not need to be set on CrypTool, because its a fixed-matrix that is applyied on mix columns along the cipher process
 
     02 03 01 01 
     01 02 03 01
@@ -69,9 +69,18 @@ For each round a key is created based on the previous keys by rotating, substuti
 
 ## AddRoundKey - OK
 
-### Inputs: 
+Simple funcion that apply XOR for each byte on InputBlock over the Key byte
+
+#### Inputs: 
 - State Block
-- 
+- Key
+
+
+#### Pseudo code 
+
+    for each byte as be
+        data[b] = input[b] XOR key[b]
+
 
 
 ## SubBytes - OK
