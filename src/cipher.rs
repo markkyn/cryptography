@@ -11,6 +11,12 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
     let mut state : Block = input.clone();
     
+    let permutate : [u8; 16] = [
+        0x00, 0x05, 0x0a, 0x0f,
+        0x04, 0x09, 0x0e, 0x03,
+        0x08, 0x0d, 0x02, 0x07,
+        0x0c, 0x01, 0x06, 0x0b
+    ]; 
 
     // pre-round
     state = add_round_key(&input, roundKeys[0].clone());
@@ -22,7 +28,9 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
 
         println!("\tInput Block: {:#02x}", state.data_as_u128() );
         state = sub_bytes(&state, sbox.clone());
-        state = shift_rows(&state);
+        //state = shift_rows(&state);
+        state = permutation(&state, permutate);
+
 
         state = mix_columns(&state, MIX_COLUMNS_MT);
         state = add_round_key(&state, roundKeys[r].clone());
@@ -77,6 +85,30 @@ fn sub_bytes(input: &Block, sbox : Sbox) -> Block {
     println!("\tSubstitution Block: {:#02x}", state.data_as_u128());
 
     state.clone()
+}
+
+fn permutation(input: &Block, permutate : [u8; 16]) -> Block {
+    // i = permute[r]
+    // output[r] = input[i]
+
+    let mut state : Block = input.clone();
+
+    //let mut rows : Vec<Vec<u8>> = state.get_rows();
+
+    for r in 0..16 {
+        let i : usize =  permutate[r] as usize;
+
+        state.data[r] = input.data[i];
+    }
+
+    let output = Block {
+        data: state.data,
+        rows: state.rows,
+        cols: state.cols
+    };
+    
+    println!("\tShifted Block: {:#02x}", output.data_as_u128());
+    output.clone()
 }
 
 fn shift_rows(input: &Block) -> Block {
