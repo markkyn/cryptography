@@ -17,16 +17,18 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
         0x08, 0x0d, 0x02, 0x07,
         0x0c, 0x01, 0x06, 0x0b
     ]; 
+    
+    println!("\n\tRound 0:");
 
     // pre-round
     state = add_round_key(&input, roundKeys[0].clone());
 
     // for round
-    for r in 1..9 {
+    for r in 1..=9 {
 
         println!("\n\tRound {}:\n", r);
 
-        println!("\tInput Block: {:#02x}", state.data_as_u128() );
+        //println!("\tInput Block: {:#02x}", state.data_as_u128() );
         state = sub_bytes(&state, sbox.clone());
         //state = shift_rows(&state);
         state = permutation(&state, permutate);
@@ -36,9 +38,12 @@ pub fn cipher(input : &Block, mut roundKeys: Vec<Key>, sbox : Sbox) -> Block {
         state = add_round_key(&state, roundKeys[r].clone());
     }
 
+    println!("\n\tRound 10:\n");
+
     // last round - 11
     state = sub_bytes(&state, sbox.clone());
-    state = shift_rows(&state);
+    //state = shift_rows(&state);
+    state = permutation(&state, permutate);
     state = add_round_key(&state, roundKeys.pop().expect("Couldnt pop round key"));
 
     state.clone()
@@ -59,9 +64,7 @@ fn add_round_key(input : &Block, key : Key) -> Block {
         data[i] = input.data[i] ^ key.get_byte(i).unwrap();
     }
 
-    print!("\n");
     // returns the State Block = Input XOR Key
-
     
     let output = Block {
         data: data.to_vec(),
@@ -135,25 +138,23 @@ fn shift_rows(input: &Block) -> Block {
     output.clone()
 }
 
-fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
-    
+pub fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
+    // following https://crypto.stackexchange.com/questions/2402/how-to-solve-mixcolumns/95775#95775
     let state = input.clone();
 
-    let mut state_cols : Vec<Vec<u8>> = state.get_cols();
+    let state_cols : Vec<Vec<u8>> = state.get_cols();
     let data : u128 = 0x00;
 
     let mut output = state.clone();
     for c  in 0..state.cols as usize { // For each col in expoent matrix 
         for r in 0..state.rows as usize { // Calculate each polinomial ( )
-            
             let mut result_byte : u8 = 0; // x¹ + x² + x³ =  element of polinomials;
             for e in 0..state.rows as usize { // for each element
                 let expoent_pol = get_polinomial(matrix[4 * r + e]); // from const matrix
-                let value_pol = get_polinomial(state_cols[e][c]);
+                let value_pol = get_polinomial(state_cols[c][e]);
 
                 // Polinomial multiplication mod 2
                 let added_expoents : Vec<usize> = pol_mult_mod2(value_pol, expoent_pol);
-                
                 let integer_polinomial : u16 = from_polinomial(added_expoents);
                 
                 let mut byte_polinomial : u8 = 0x00;
@@ -162,11 +163,9 @@ fn mix_columns(input: &Block, matrix : [u8; 16] ) -> Block {
                 } else {
                     byte_polinomial = integer_polinomial as u8;
                 }
-                
-                // XORing => in x¹ + x² + x³, we apply XOR for every polinomial sum in GF(2^8) 
+
                 result_byte ^= byte_polinomial;
             }
-
             output.data[4 *c + r] = result_byte;
         }
     }
