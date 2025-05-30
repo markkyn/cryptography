@@ -4,6 +4,8 @@ use std::fs::File;
 use crate::key::Key;
 use crate::sbox_parser::Sbox;
 use crate::cipher::cipher;
+use crate::cipher::mix_columns;
+use crate::algebra::*;
 
 mod key;
 mod sbox_parser;
@@ -58,7 +60,6 @@ static MIX_COLUMNS_MT : [u8; 16] = [
 
 const MIX_COLUMNS_ROWS : usize = 4;
 const MIX_COLUMNS_COLS : usize = 4;
-
 
 #[derive(Clone)]
 struct Block {
@@ -135,7 +136,6 @@ impl Block {
     }
 
 }
-
 // States are considered Blocks that are being changed over the AES.
 // So, I used "type aliases" to rename the struct
 // This way will be easier to understand and write the code.
@@ -179,6 +179,7 @@ fn main() -> io::Result<()> {
             rows: 4,
             cols: 4
         };
+        
         println!("\nCipher Block {}: {:#02x}", i, block.data_as_u128());
         
         output_blocks.push(cipher(&block, round_keys.clone(), sbox.clone()));
