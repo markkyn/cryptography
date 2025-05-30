@@ -39,7 +39,7 @@ Used as substitution matrix
 
 
 ### MixColumns Matrix
-This Matrix does not need to be set on CrypTool, because its a fixed-matrix that is applyied on mix columns along the cipher process
+This Matrix does not need to be set on CrypTool, because it's a fixed-matrix that is applied on mix columns along the cipher process
 
     02 03 01 01 
     01 02 03 01
@@ -85,8 +85,13 @@ Simple funcion that apply XOR for each byte on InputBlock over the Key byte
 
 ## SubBytes - OK
 
-## ShiftRows - Broken
+## ShiftRows - OKish
+In CryptoTool they use permutation as the actual shiftrows function. For this reason I implemented the permutation function on cipher, but kept the old shift rows .
 
-## MixColumns - Can't test because shiftrows is broken
+## MixColumns - OK
 
 Following: https://crypto.stackexchange.com/questions/2402/how-to-solve-mixcolumns/95775#95775
+
+[x] Polinomial Multiplication Mod 2 - **OK** 
+
+    (x+x5+x+x³+x²+x¹+x) ∗ (x¹+x)
